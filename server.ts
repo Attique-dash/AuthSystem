@@ -1,10 +1,9 @@
 import "dotenv/config";
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import connectDB from "./config/db";
 import usersRouter from "./routes/auth";
 import passwordRouter from "./routes/password";
 import errorHandler from "./middleware/error";
-import { VercelRequest, VercelResponse } from 'vercel';
 
 const app = express();
 
@@ -22,10 +21,33 @@ app.use("/api/password", passwordRouter);
 // Error handling middleware
 app.use(errorHandler);
 
-// For Vercel
-const handler = async (req: VercelRequest, res: VercelResponse) => {
-  return app(req as any, res as any);
+// Connect to MongoDB before handling any request (for Vercel)
+let isConnected = false;
+
+const connectToDatabase = async () => {
+  if (isConnected) {
+    return;
+  }
+  
+  try {
+    await connectDB();
+    isConnected = true;
+    console.log("Database connected successfully");
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    throw error;
+  }
 };
+
+// Middleware to ensure DB connection for each request
+app.use(async (_req: Request, _res: Response, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
@@ -48,4 +70,4 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-export default handler;
+export default app;
