@@ -27,8 +27,12 @@ export const CreateUser = async (
 
     res.status(201).json({ massage: "User Registered Successful", createUser });
 
-  } catch (err) {
-    next(createHttpError(400, "User Created Failed", err));
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      next(createHttpError(400, `User Creation Failed: ${err.message}`));
+    } else {
+      next(createHttpError(400, 'User Creation Failed'));
+    }
   }
 };
 
@@ -55,7 +59,11 @@ export const loginUser = async (
     const token = generate(user._id);
     res.json({ message: "Login Successful", token });
 
-  } catch (err) {
-    next(createHttpError(400, "User login Failed", err));
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      next(createHttpError(400, `Login Failed: ${err.message}`));
+    } else {
+      next(createHttpError(400, 'Login Failed'));
+    }
   }
 };

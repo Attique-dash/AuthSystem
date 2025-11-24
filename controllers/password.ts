@@ -50,8 +50,12 @@ export const forgotPassword = async (
       delete otpIntervals[email];
       console.log(`Stopped sending OTPs to ${email} (10 min timeout)`);
     }, 10 * 60 * 1000);
-  } catch (err) {
-    next(createHttpError(400, "Forgot Password Failed", err));
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      next(createHttpError(400, `Forgot Password Failed: ${err.message}`));
+    } else {
+      next(createHttpError(400, 'Forgot Password Failed'));
+    }
   }
 };
 
@@ -75,8 +79,12 @@ export const verifyOtp = async (
       }
 
     res.json({ message: "OTP verified" });
-  } catch (err) {
-    next(createHttpError(400, "Verify OTP Failed", err));
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      next(createHttpError(400, `OTP Verification Failed: ${err.message}`));
+    } else {
+      next(createHttpError(400, 'OTP Verification Failed'));
+    }
   }
 };
 
@@ -98,7 +106,11 @@ export const resetPassword = async (
     await User.findOneAndUpdate({ email }, { password: hashed });
 
     res.json({ message: "Password Reset Successfully" });
-  } catch (err) {
-    next(createHttpError(400, "Reset Password Failed", err));
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      next(createHttpError(400, `Password Reset Failed: ${err.message}`));
+    } else {
+      next(createHttpError(400, 'Password Reset Failed'));
+    }
   }
 };

@@ -21,8 +21,12 @@ export const protect = async (
 
             (req as any).user = await User.findById(decoded.id).select("-password");
             return next();
-        }catch(err){
-            next(createHttpError(400, "Forgot Password Failed", err));
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                next(createHttpError(400, `Authentication failed: ${err.message}`));
+            } else {
+                next(createHttpError(400, 'Authentication failed'));
+            }
         }
     }
 
