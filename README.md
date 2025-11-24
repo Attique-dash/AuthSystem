@@ -34,7 +34,7 @@ Create a `.env` file in the root directory with the following variables:
 
 ```
 MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
+JWT_SECRET=your_JWT_SECRET
 SMTP_HOST=your_smtp_host
 SMTP_PORT=587
 SMTP_USER=your_smtp_username
